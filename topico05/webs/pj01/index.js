@@ -27,6 +27,18 @@ var DB = {
     ]
 }
 
+//lista todos os registros
+app.get("/",() => {
+
+});
+
+//lista todos os jogos
+app.get("/games",(req,res) =>{
+    res.statusCode = 200;
+    res.json(DB.games);
+});
+
+//busca game por id
 app.get("/game/:id", (req,res)=>{
     
     if(isNaN(req.params.id)){
@@ -46,8 +58,9 @@ app.get("/game/:id", (req,res)=>{
     }
 });
 
+//envia dados no corpo da requisição
 app.post("/game", (req,res)=>{
-    const {id,title,price,year} = req.body;
+    const {id, title, price, year} = req.body;
 
     DB.games.push({
         id,
@@ -59,12 +72,61 @@ app.post("/game", (req,res)=>{
     res.sendStatus(200);
 });
 
-app.get("/games",(req,res) =>{
-    res.statusCode = 200;
-    res.json(DB.games);
+//para deletar uma infromação
+app.delete("/game/:id",(req, res) => {
+    if(isNaN(req.params.id)){
+        res.sendStatus(400);
+    }else{
+        var id = parseInt(req.params.id);
+        var index = DB.games.findIndex(g => g.id == id);
+
+        if(index == -1){
+            res.sendStatus(404);
+        }else{
+            DB.games.splice(index,1);
+            res.sendStatus(200);
+        }
+    }
 });
 
+//para atualizar uma informação
+app.put("/game/:id",(req, res) => {
 
+    if(isNaN(req.params.id)){
+        res.sendStatus(400);
+    }else{
+
+        var id = parseInt(req.params.id);
+
+        var game = DB.games.find(g => g.id == id);
+
+        if(game != undefined){
+
+            var {title, price, year} = req.body;
+
+
+            if(title != undefined){
+                game.title = title;
+            }
+
+            if(price != undefined){
+                game.price = price;
+            }
+
+            if(year != undefined){
+                game.year = year;
+            }
+
+            res.sendStatus(200);
+
+        }else{
+            res.sendStatus(404);
+        }
+    }
+
+});
+
+//servidor rodando
 app.listen(45678, () => {
     console.log("Aplicação rodando nao porta 45678");
 });
